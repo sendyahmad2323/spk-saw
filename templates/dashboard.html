@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="jumbotron bg-primary text-white p-4 rounded mb-4">
+                <h1 class="display-4">Selamat Datang, {{ user.username }}!</h1>
+                <p class="lead">Sistem Pendukung Keputusan untuk Memilih Framework Web menggunakan Metode SAW</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistik -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <h3 class="card-title text-primary">{{ total_frameworks }}</h3>
+                    <p class="card-text">Framework Terdaftar</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <h3 class="card-title text-success">{{ total_criteria }}</h3>
+                    <p class="card-text">Kriteria Penilaian</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <h3 class="card-title text-warning">{{ total_weight|floatformat:2 }}</h3>
+                    <p class="card-text">Total Bobot Kriteria</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card {% if is_ready_to_calculate %}border-success{% else %}border-danger{% endif %}">
+                <div class="card-body text-center">
+                    {% if is_ready_to_calculate %}
+                        <i class="fas fa-check-circle text-success" style="font-size: 2rem;"></i>
+                        <p class="card-text mt-2">Siap Hitung SAW</p>
+                    {% else %}
+                        <i class="fas fa-times-circle text-danger" style="font-size: 2rem;"></i>
+                        <p class="card-text mt-2">Belum Siap</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panduan Cepat -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Panduan Penggunaan</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Langkah-langkah menggunakan sistem:</h6>
+                    <ol>
+                        <li><strong>Tambah Kriteria:</strong> Tentukan kriteria penilaian (contoh: Performance, Scalability, dll) dengan bobot total = 1.0</li>
+                        <li><strong>Tambah Framework:</strong> Daftarkan framework yang akan dibandingkan</li>
+                        <li><strong>Input Nilai:</strong> Berikan nilai untuk setiap kombinasi framework-kriteria</li>
+                        <li><strong>Hitung SAW:</strong> Sistem akan menghitung dan merekomendasikan framework terbaik</li>
+                    </ol>
+                    
+                    <hr>
+                    
+                    <h6>Contoh Format CSV:</h6>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <strong>criteria.csv:</strong>
+                            <pre class="bg-light p-2 small">name,weight,attribute
+Performance,0.3,benefit
+Scalability,0.25,benefit
+Learning Curve,0.2,cost
+Maintenance,0.25,cost</pre>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>frameworks.csv:</strong>
+                            <pre class="bg-light p-2 small">name,description
+Django,Full-stack framework
+Flask,Micro framework
+FastAPI,Modern async framework</pre>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>scores.csv:</strong>
+                            <pre class="bg-light p-2 small">framework,criteria,value
+Django,Performance,85
+Django,Scalability,90
+Flask,Performance,75
+Flask,Scalability,70</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Menu Cepat</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'add_criteria' %}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Tambah Kriteria
+                        </a>
+                        <a href="{% url 'add_framework' %}" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Tambah Framework
+                        </a>
+                        <a href="{% url 'framework_list' %}" class="btn btn-info">
+                            <i class="fas fa-list"></i> Lihat Semua Data
+                        </a>
+                        <a href="{% url 'upload_csv' %}" class="btn btn-warning">
+                            <i class="fas fa-upload"></i> Import dari CSV
+                        </a>
+                        {% if is_ready_to_calculate %}
+                        <a href="{% url 'calculate_saw' %}" class="btn btn-danger">
+                            <i class="fas fa-calculator"></i> Hitung SAW
+                        </a>
+                        {% else %}
+                        <button class="btn btn-secondary" disabled>
+                            <i class="fas fa-calculator"></i> Hitung SAW (Belum Siap)
+                        </button>
+                        <small class="text-muted">
+                            {% if total_criteria == 0 %}
+                                Tambahkan kriteria terlebih dahulu.
+                            {% elif total_frameworks == 0 %}
+                                Tambahkan framework terlebih dahulu.
+                            {% elif total_weight != 1.0 %}
+                                Total bobot kriteria harus 1.0
+                            {% endif %}
+                        </small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.jumbotron {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.card {
+    transition: transform 0.2s;
+}
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}

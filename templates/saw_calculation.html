@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white text-center">
+                <h2 class="card-title mb-0">
+                    <i class="fas fa-calculator"></i> SAW Calculation
+                </h2>
+            </div>
+            <div class="card-body text-center">
+                <p class="card-text">
+                    Simple Additive Weighting (SAW) method for framework selection
+                </p>
+                
+                {% if frameworks.count < 2 %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        You need at least 2 frameworks to perform SAW calculation.
+                        Current frameworks: {{ frameworks.count }}
+                    </div>
+                {% elif not criteria_list %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        You need to define criteria before calculation.
+                    </div>
+                {% elif total_weight != 1 %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Total criteria weight must equal 1.0. Current total: {{ total_weight }}
+                    </div>
+                {% else %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        Ready for calculation! 
+                        Frameworks: {{ frameworks.count }}, Criteria: {{ criteria_list.count }}
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-play"></i> Start SAW Calculation
+                        </button>
+                    </form>
+                {% endif %}
+                
+                <div class="mt-4">
+                    <a href="{% url 'framework_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Frameworks
+                    </a>
+                    <a href="{% url 'criteria_list' %}" class="btn btn-info">
+                        <i class="fas fa-tasks"></i> Manage Criteria
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Statistics -->
+{% if frameworks and criteria_list %}
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-weight-hanging"></i> Criteria Summary
+                </h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% for criteria in criteria_list %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ criteria.name }}</strong>
+                            <br>
+                            <small class="text-muted">{{ criteria.get_attribute_display }}</small>
+                        </div>
+                        <span class="badge bg-secondary rounded-pill">
+                            {{ criteria.weight }}
+                        </span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

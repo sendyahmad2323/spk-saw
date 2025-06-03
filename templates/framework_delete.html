@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="card-title mb-0">
+                    <i class="fas fa-trash"></i> Delete Criteria
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Are you sure you want to delete the criteria <strong>"{{ object.name }}"</strong>?
+                </div>
+                
+                <p class="text-muted">This action cannot be undone. All evaluations using this criteria will also be deleted.</p>
+                
+                <div class="mb-3">
+                    <strong>Criteria Details:</strong>
+                    <ul class="list-unstyled mt-2">
+                        <li><strong>Name:</strong> {{ object.name }}</li>
+                        <li><strong>Weight:</strong> {{ object.weight }}</li>
+                        <li><strong>Type:</strong> {{ object.get_attribute_display }}</li>
+                    </ul>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'criteria_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Yes, Delete
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

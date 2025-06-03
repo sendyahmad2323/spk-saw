@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Scores</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .stats { background: #f9f9f9; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .empty { color: #999; font-style: italic; }
+    </style>
+</head>
+<body>
+    <h1>Debug: Framework Scores Database</h1>
+    
+    <div class="stats">
+        <h3>Statistik:</h3>
+        <p>Total Frameworks: {{ total_frameworks }}</p>
+        <p>Total Criteria: {{ total_criteria }}</p>
+        <p>Total Scores Tersimpan: {{ total_scores }}</p>
+    </div>
+
+    <h2>Semua Framework</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Created</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for fw in frameworks %}
+            <tr>
+                <td>{{ fw.id }}</td>
+                <td>{{ fw.name }}</td>
+                <td>{{ fw.description|default:"<em>No description</em>" }}</td>
+                <td>{{ fw.id }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="empty">Tidak ada framework</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Semua Criteria</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Weight</th>
+                <th>Attribute</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in criteria %}
+            <tr>
+                <td>{{ c.id }}</td>
+                <td>{{ c.name }}</td>
+                <td>{{ c.weight }}</td>
+                <td>{{ c.attribute }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="empty">Tidak ada criteria</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Semua Framework Scores (Yang Tersimpan di Database)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Framework</th>
+                <th>Criteria</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for score in scores %}
+            <tr>
+                <td>{{ score.id }}</td>
+                <td>{{ score.framework.name }}</td>
+                <td>{{ score.criteria.name }}</td>
+                <td>{{ score.value }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="empty">Tidak ada scores tersimpan di database!</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p><a href="{% url 'framework_list' %}">← Kembali ke Framework List</a></p>
+
+    <script>
+        // Auto refresh setiap 30 detik untuk monitoring real-time
+        setTimeout(function() {
+            location.reload();
+        }, 30000);
+    </script>
+</body>
+</html>

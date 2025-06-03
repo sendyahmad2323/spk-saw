@@ -1,0 +1,326 @@
+{% extends 'base_user.html' %}
+{% block content %}
+<div class="container mt-4">
+    <!-- CSV Upload Section -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-md-10">
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-file-csv"></i> Import Framework dari CSV
+                    </h5>
+                </div>
+                <div class="container mt-4">
+    <!-- CSV Upload Section -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-md-10">
+            <div class="card border-primary">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <input type="file" name="csv_upload" id="csv_upload" class="form-control" accept=".csv">
+                    <div class="form-text">Upload file CSV dengan kolom: name, description, score_1, score_2, ...
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success">Import CSV</button>
+            </form> 
+                    <!-- CSV Format Info -->
+                    <div class="collapse mt-3" id="csvFormatInfo">
+                        <div class="card card-body bg-light">
+                            <h6><i class="fas fa-table"></i> Format CSV yang Diperlukan:</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>nama</th>
+                                            <th>deskripsi</th>
+                                            <th>performa</th>
+                                            <th>skalabilitas</th>
+                                            <th>komunitas</th>
+                                            <th>kemudahan_belajar</th>
+                                            <th>pemeliharaan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Django</td>
+                                            <td>Full-stack framework</td>
+                                            <td>800</td>
+                                            <td>4</td>
+                                            <td>50000</td>
+                                            <td>40</td>
+                                            <td>4</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <small class="text-muted">
+                                <strong>Catatan:</strong> 
+                                <ul class="mb-0">
+                                    <li>Kolom <code>nama</code> dan <code>deskripsi</code> wajib ada</li>
+                                    <li>Kolom kriteria opsional (performa, skalabilitas, dll)</li>
+                                    <li>Skalabilitas: nilai 1-5</li>
+                                    <li>Performa: requests per second</li>
+                                    <li>File maksimal 5MB</li>
+                                </ul>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-md-10">
+            <hr class="my-4">
+            <div class="text-center text-muted">
+                <span class="bg-white px-3">ATAU</span>
+            </div>
+            <hr class="my-4">
+        </div>
+    </div>
+
+    <!-- Manual Input Form -->
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-plus"></i> Tambah Framework Manual
+                    </h4>
+                </div>
+
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">
+                                <strong>Nama Framework</strong>
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="text-danger mt-1">
+                                    {{ form.name.errors }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Contoh: Django, Flask, FastAPI, Laravel, Express.js
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                <strong>Deskripsi</strong>
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger mt-1">
+                                    {{ form.description.errors }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Berikan deskripsi singkat tentang framework ini (opsional)
+                            </div>
+                        </div>
+
+                        <!-- Kriteria Penilaian -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-chart-bar"></i> Kriteria Penilaian
+                                </h5>
+                                <small class="text-muted">Isi nilai untuk setiap kriteria (opsional)</small>
+                            </div>
+                            <div class="card-body">
+                                {% for criteria in criteria_list_user %}
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label for="score_{{ criteria.id }}" class="form-label">
+                                            <strong>{{ criteria.name }}</strong>
+                                        </label>
+                                        {% if criteria.name == "Performa" %}
+                                            <small class="text-muted d-block">(req/s)</small>
+                                        {% elif criteria.name == "Skalabilitas" %}
+                                            <small class="text-muted d-block">(1-5)</small>
+                                        {% elif criteria.name == "Komunitas" %}
+                                            <small class="text-muted d-block">(User)</small>
+                                        {% elif criteria.name == "Kemudahan Belajar" %}
+                                            <small class="text-muted d-block">(Jam)</small>
+                                        {% elif criteria.name == "Pemeliharaan & Update" %}
+                                            <small class="text-muted d-block">(per Tahun)</small>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="number" 
+                                               class="form-control" 
+                                               id="score_{{ criteria.id }}" 
+                                               name="score_{{ criteria.id }}"
+                                               step="0.01"
+                                               placeholder="Masukkan nilai..."
+                                               {% if criteria.name == "Skalabilitas" %}
+                                                   min="1" max="5"
+                                               {% elif criteria.name == "Performa" %}
+                                                   min="0"
+                                               {% elif criteria.name == "Komunitas" %}
+                                                   min="0"
+                                               {% elif criteria.name == "Kemudahan Belajar" %}
+                                                   min="0"
+                                               {% elif criteria.name == "Pemeliharaan & Update" %}
+                                                   min="0"
+                                               {% endif %}>
+                                        
+                                        {% if criteria.name == "Performa" %}
+                                            <div class="form-text">Contoh: 1000 untuk 1000 requests/second</div>
+                                        {% elif criteria.name == "Skalabilitas" %}
+                                            <div class="form-text">1 = Sangat Sulit, 5 = Sangat Mudah</div>
+                                        {% elif criteria.name == "Komunitas" %}
+                                            <div class="form-text">Jumlah pengguna aktif atau kontributor</div>
+                                        {% elif criteria.name == "Kemudahan Belajar" %}
+                                            <div class="form-text">Estimasi jam belajar untuk menguasai dasar</div>
+                                        {% elif criteria.name == "Pemeliharaan & Update" %}
+                                            <div class="form-text">Frekuensi update atau rilis per tahun</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Contoh Framework Populer -->
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-lightbulb"></i> Contoh Framework Web Populer:</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Python:</strong>
+                                    <ul class="mb-2">
+                                        <li>Django - Full-stack framework</li>
+                                        <li>Flask - Micro framework</li>
+                                        <li>FastAPI - Modern async framework</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>JavaScript:</strong>
+                                    <ul class="mb-2">
+                                        <li>Express.js - Minimalist framework</li>
+                                        <li>Next.js - React framework</li>
+                                        <li>Nuxt.js - Vue.js framework</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>PHP:</strong>
+                                    <ul class="mb-0">
+                                        <li>Laravel - Elegant framework</li>
+                                        <li>Symfony - Component-based</li>
+                                        <li>CodeIgniter - Simple framework</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Java:</strong>
+                                    <ul class="mb-0">
+                                        <li>Spring Boot - Enterprise framework</li>
+                                        <li>Struts - MVC framework</li>
+                                        <li>Vaadin - Component framework</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'framework_list_user' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Kembali
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Simpan Framework
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Add Buttons -->
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-zap"></i> Tambah Cepat Framework Populer
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">Klik untuk menambah framework populer dengan nilai contoh:</p>
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <button type="button" class="btn btn-outline-primary w-100" onclick="fillFormWithScores('Django', 'Full-stack Python framework dengan admin panel built-in', {performa: 800, skalabilitas: 4, komunitas: 50000, kemudahan: 40, pemeliharaan: 4})">
+                                Django
+                            </button>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <button type="button" class="btn btn-outline-primary w-100" onclick="fillFormWithScores('Flask', 'Micro framework Python yang fleksibel dan ringan', {performa: 1200, skalabilitas: 5, komunitas: 35000, kemudahan: 20, pemeliharaan: 6})">
+                                Flask
+                            </button>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <button type="button" class="btn btn-outline-primary w-100" onclick="fillFormWithScores('FastAPI', 'Modern Python framework dengan automatic API documentation', {performa: 2000, skalabilitas: 5, komunitas: 25000, kemudahan: 25, pemeliharaan: 8})">
+                                FastAPI
+                            </button>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <button type="button" class="btn btn-outline-success w-100" onclick="fillFormWithScores('Express.js', 'Minimalist Node.js framework untuk aplikasi web', {performa: 1500, skalabilitas: 4, komunitas: 40000, kemudahan: 15, pemeliharaan: 10})">
+                                Express.js
+                            </button>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <button type="button" class="btn btn-outline-success w-100" onclick="fillFormWithScores('Next.js', 'React framework dengan SSR dan static generation', {performa: 1000, skalabilitas: 4, komunitas: 30000, kemudahan: 35, pemeliharaan: 12})">
+                                Next.js
+                            </button>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <button type="button" class="btn btn-outline-warning w-100" onclick="fillFormWithScores('Laravel', 'Elegant PHP framework dengan Artisan CLI', {performa: 600, skalabilitas: 3, komunitas: 45000, kemudahan: 30, pemeliharaan: 6})">
+                                Laravel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function fillForm(name, description) {
+    document.getElementById('{{ form.name.id_for_label }}').value = name;
+    document.getElementById('{{ form.description.id_for_label }}').value = description;
+}
+
+function fillFormWithScores(name, description, scores) {
+    // Fill basic info
+    document.getElementById('{{ form.name.id_for_label }}').value = name;
+    document.getElementById('{{ form.description.id_for_label }}').value = description;
+    
+    // Fill scores based on criteria names
+    {% for criteria in criteria_list %}
+        {% if criteria.name == "Performa" %}
+            if (scores.performa) document.getElementById('score_{{ criteria.id }}').value = scores.performa;
+        {% elif criteria.name == "Skalabilitas" %}
+            if (scores.skalabilitas) document.getElementById('score_{{ criteria.id }}').value = scores.skalabilitas;
+        {% elif criteria.name == "Komunitas" %}
+            if (scores.komunitas) document.getElementById('score_{{ criteria.id }}').value = scores.komunitas;
+        {% elif criteria.name == "Kemudahan Belajar" %}
+            if (scores.kemudahan) document.getElementById('score_{{ criteria.id }}').value = scores.kemudahan;
+        {% elif criteria.name == "Pemeliharaan & Update" %}
+            if (scores.pemeliharaan) document.getElementById('score_{{ criteria.id }}').value = scores.pemeliharaan;
+        {% endif %}
+    {% endfor %}
+}
+</script>
+
+{% endblock %}
