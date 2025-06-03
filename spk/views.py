@@ -91,8 +91,16 @@ def dashboard(request):
 @login_required
 def dashboard_user(request):
     criteria = Criteria.objects.all()
+    total_frameworks = Framework.objects.count()
+    total_criteria = Criteria.objects.count()
+    total_weight = sum(c.weight for c in Criteria.objects.all())
+    
     context = {
         'criteria': criteria,
+        'total_frameworks': total_frameworks,
+        'total_criteria': total_criteria,
+        'total_weight': total_weight,
+        'is_ready_to_calculate': abs(total_weight - 1.0) < 0.001 and total_frameworks > 0
     }
     return render(request, 'user/dashboard_user.html', context)
 
@@ -113,26 +121,30 @@ def criteria_list_view(request):
 def framework_list_user(request):
     criteria_list = Criteria.objects.all()
     frameworks = Framework.objects.all()
+    total_frameworks = frameworks.count()
+    total_criteria = criteria_list.count()
+    total_weight = sum(c.weight for c in criteria_list)
     
+    # Siapkan data untuk tabel dengan scores
     framework_data = []
     for fw in frameworks:
-        # Ambil scores FrameworkScore untuk framework ini, simpan sebagai dict {criteria_id: value}
-        scores_qs = FrameworkScore.objects.filter(framework=fw)
-        scores = {score.criteria.id: score.value for score in scores_qs}
-
+        fw_scores = {}
+        for criteria in criteria_list:
+            score = FrameworkScore.objects.filter(framework=fw, criteria=criteria).first()
+            fw_scores[criteria.id] = score.value if score else 0
         
         framework_data.append({
             'framework': fw,
-            'scores': scores
+            'scores': fw_scores
         })
     
-    total_weight = sum(c.weight for c in criteria_list)
-    
     return render(request, 'user/framework_list_user.html', {
-        'criteria_list': criteria_list,
         'framework_data': framework_data,
+        'criteria_list': criteria_list,
         'total_weight': total_weight,
-        'is_ready': criteria_list.exists(),
+        'total_frameworks': total_frameworks,
+        'total_criteria': total_criteria,
+        'is_ready': len(frameworks) > 0
     })
 
 

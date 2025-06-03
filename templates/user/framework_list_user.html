@@ -1,5 +1,5 @@
 {% extends 'base_user.html' %}
-
+{% load custom_filters %}
 {% block content %}
 <div class="container-fluid mt-4">
     <!-- Header dengan tombol aksi -->
@@ -163,7 +163,7 @@
                                         <td>
                                             {{ item.framework.description|default:"-"|truncatechars:50 }}
                                         </td>
-                                        {% for criteria in criteria_list_user %}
+                                        {% for criteria in criteria_list %}
                                         <td class="text-center">
                                             {% with score=item.scores|default_if_none:0 %}
                                                 {% if score %}
